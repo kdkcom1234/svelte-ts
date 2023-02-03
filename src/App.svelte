@@ -1,5 +1,6 @@
 <script lang="ts">
   import Router from "svelte-spa-router";
+
   import routes from "./routes";
   import { profileStore, type IProfile } from "./stores";
 
@@ -7,6 +8,12 @@
   profileStore.subscribe((value) => {
     profile = value;
   });
+
+  // react: useEffect(()={},[profile])
+  // vue: watchEffect(()=>{ ...profile})
+  $: {
+    console.log(profile);
+  }
 </script>
 
 <header>
