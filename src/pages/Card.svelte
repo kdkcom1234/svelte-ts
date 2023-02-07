@@ -18,25 +18,25 @@
       Draggable.create(card, {
         type: "x,y",
         bounds: constainer,
-        onPress: function () {
-          // const target = this as Draggable;
-          // if (!originPos[index]) {
-          //   originPos[index] = { x: 0, y: 0 };
-          // }
-          // originPos[index].x = target.x;
-          // originPos[index].y = target.y;
-          // console.log(target.x + " " + target.y);
-          // console.log(originPos[index]);
-        },
         onRelease: function (e: PointerEvent) {
-          console.log(e);
-
-          const target = this as Draggable;
-          gsap.to(target.target, {
-            duration: 1,
-            x: 0,
-            y: 0,
+          const elem = this as Draggable;
+          console.log(elem.x, elem.y);
+          let hit = false;
+          [main, support].concat(cards).forEach((pos) => {
+            if (elem.hitTest(pos, "50%")) {
+              elem.applyBounds(pos);
+              hit = true;
+            }
           });
+
+          if (!hit) {
+            // 위치 초기화
+            gsap.to(elem.target, {
+              duration: 0.5,
+              x: 0,
+              y: 0,
+            });
+          }
         },
       })[0];
     });
