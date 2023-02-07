@@ -19,4 +19,11 @@ routes.set("/todo", wrap({
 })
 );
 
+routes.set("/draggable", wrap({
+  asyncComponent: () => import('@/pages/Card.svelte')
+})
+);
+
+
+
 export default routes;
