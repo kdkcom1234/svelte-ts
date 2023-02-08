@@ -16,15 +16,36 @@
     gsap.registerPlugin(Draggable);
 
     let origin = { x: 0, y: 0 };
+    let prev = { x: 0, y: 0 };
     cards.forEach((card, index) => {
       Draggable.create(card, {
         type: "x,y",
         bounds: constainer,
         onPress: function () {
+          // 현재 위치 저장
           const elem = this as Draggable;
           const { x, y } = elem.target.getBoundingClientRect();
           origin = { x, y };
-          console.log("origin - ", x, y);
+          // console.log("origin - ", x, y);
+        },
+        onDragStart: function () {
+          const elem = this as Draggable;
+          // console.log("drag start-", elem.x, elem.y);
+        },
+        onDragEnd: function () {
+          const elem = this as Draggable;
+          // console.log("drag end-", elem.x, elem.y);
+        },
+        onMove: function () {
+          const elem = this as Draggable;
+          // console.log("curr-", elem.x, elem.y);
+          // console.log("prev-", prev.x, prev.y);
+          const offsetX = elem.x - prev.x;
+          const offsetY = elem.y - prev.y;
+          console.log("offset", offsetX, offsetY);
+
+          const { x, y } = elem;
+          prev = { x, y };
         },
         onRelease: function (e: PointerEvent) {
           const elem = this as Draggable;
@@ -36,11 +57,15 @@
               console.log("stage - ", stage.x, stage.y);
               console.log("moved - ", elem.x, elem.y);
 
-              // 위치 이동
+              // 위치 이동(스테이지와 원래 위치의 간극만큼 이동)
               gsap.to(elem.target, {
                 duration: 0.5,
                 x: stage.x - origin.x + 8,
                 y: stage.y - origin.y + 8,
+                rotateX: 0,
+                rotateY: 0,
+                translateZ: 0,
+                scale: 1,
               });
 
               hit = true;
@@ -48,11 +73,15 @@
           });
 
           if (!hit) {
-            // 위치 초기화
+            // 위치 초기화(0, 0)
             gsap.to(elem.target, {
               duration: 0.5,
               x: 0,
               y: 0,
+              rotateX: 0,
+              rotateY: 0,
+              translateZ: 0,
+              scale: 1,
             });
           }
         },
@@ -76,6 +105,10 @@
 </div>
 
 <style>
+  .container {
+    perspective: 500px;
+  }
+
   .stage {
     display: flex;
     margin-bottom: 40px;
@@ -112,5 +145,6 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    transform-style: preserve-3d;
   }
 </style>
