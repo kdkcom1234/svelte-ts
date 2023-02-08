@@ -78,7 +78,7 @@
 <style>
   .stage {
     display: flex;
-    margin-bottom: 20px;
+    margin-bottom: 40px;
     gap: 8px;
     justify-content: center;
   }
