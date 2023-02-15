@@ -28,13 +28,19 @@
 
     const tilt = throttle(
       (x: number, y: number, target: HTMLElement | SVGElement) => {
-        console.log("rotateY:", x, "rotateX", y);
+        // console.log("rotateY:", x * 2, "rotateX", -(y * 2));
         // console.log("--tilt");
+
+        // 위로: y이동은 - , x회전은+
+        // 아래로: y이동은 +, x회전은 -
+        // 오른쪽: x이동은 +, y회전은+
+        // 왼쪽: x이동은-, y회전은-
+
         gsap.to(target, {
           duration: 0.5,
           // delay: 0.5,
-          rotateY: `${-(x * 2)}deg`,
-          rotateX: `${y * 2}deg`,
+          rotateY: `${x * 1}deg`,
+          rotateX: `${-(y * 1)}deg`,
         });
       },
       10
@@ -59,42 +65,41 @@
             }
           });
 
-          const { x, y } = elem.target.getBoundingClientRect();
-
           if (!hit) {
             // 현재 위치 저장
-            origin = { x, y };
+            const rect = elem.target.getBoundingClientRect();
+            origin = { x: rect.x, y: rect.y };
             // console.log("origin - ", x, y);
           }
 
-          // // 이전값 초기화
-          // prev = { ...origin };
+          // 이전값 초기화
+          prev = { x: elem.x, y: elem.y };
 
           gsap.to(elem.target, {
             duration: 0.3,
-            scale: 1.1,
+            scale: 1.15,
             translateZ: 600,
             // rotateY: 45,
             // rotateX: 45,
           });
         },
-        // onMove: function () {
-        //   const elem = this as Draggable;
+        onMove: function () {
+          const elem = this as Draggable;
 
-        //   // 현재 위치와 이전 위치의 offset
-        //   const offsetX = elem.x - prev.x;
-        //   const offsetY = elem.y - prev.y;
-        //   // console.log(prev.x, prev.y);
-        //   // console.log(elem.x, elem.y);
-        //   // console.log("offset", "x:", offsetX, "y:", offsetY);
+          // 현재 위치와 이전 위치의 offset
+          const offsetX = elem.x - prev.x;
+          const offsetY = elem.y - prev.y;
+          // console.log(prev.x, prev.y);
+          // console.log(elem.x, elem.y);
+          // console.log("offset", "x:", offsetX, "y:", offsetY);
 
-        //   // 현재 위치 저장
-        //   const { x, y } = elem;
-        //   prev = { x, y };
+          // 현재 위치 저장
+          const { x, y } = elem;
+          prev = { x, y };
 
-        //   // // tilt
-        //   // tilt(offsetX, offsetY, elem.target);
-        // },
+          // tilt
+          tilt(offsetX, offsetY, elem.target);
+        },
 
         onRelease: function (e: PointerEvent) {
           // console.log(origin);
