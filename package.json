@@ -12,6 +12,7 @@
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^2.0.0",
     "@tsconfig/svelte": "^3.0.0",
+    "@types/lodash": "^4.14.191",
     "svelte": "^3.54.0",
     "svelte-check": "^2.10.0",
     "tslib": "^2.4.1",
@@ -20,6 +21,7 @@
   },
   "dependencies": {
     "gsap": "^3.11.4",
+    "lodash": "^4.17.21",
     "svelte-spa-router": "^3.3.0"
   }
 }

@@ -1,8 +1,10 @@
 <script lang="ts">
   import { gsap } from "gsap";
   import { Draggable } from "gsap/Draggable";
-
   import { onMount } from "svelte";
+
+  import { debounce, throttle } from "lodash";
+  import { element } from "svelte/internal";
 
   let constainer: HTMLDivElement;
   let stage: HTMLDivElement;
@@ -15,47 +17,96 @@
   onMount(() => {
     gsap.registerPlugin(Draggable);
 
+    const tiltend = debounce((target: HTMLElement | SVGElement) => {
+      // console.log("--end");
+      gsap.to(target, {
+        duration: 1.5,
+        rotateX: 0,
+        rotateY: 0,
+      });
+    }, 200);
+
+    const tilt = throttle(
+      (x: number, y: number, target: HTMLElement | SVGElement) => {
+        console.log("rotateY:", x, "rotateX", y);
+        // console.log("--tilt");
+        gsap.to(target, {
+          duration: 0.5,
+          // delay: 0.5,
+          rotateY: `${-(x * 2)}deg`,
+          rotateX: `${y * 2}deg`,
+        });
+      },
+      10
+    );
+
     let origin = { x: 0, y: 0 };
     let prev = { x: 0, y: 0 };
+
     cards.forEach((card, index) => {
       Draggable.create(card, {
         type: "x,y",
         bounds: constainer,
         onPress: function () {
-          // 현재 위치 저장
           const elem = this as Draggable;
-          const { x, y } = elem.target.getBoundingClientRect();
-          origin = { x, y };
-          // console.log("origin - ", x, y);
-        },
-        onDragStart: function () {
-          const elem = this as Draggable;
-          // console.log("drag start-", elem.x, elem.y);
-        },
-        onDragEnd: function () {
-          const elem = this as Draggable;
-          // console.log("drag end-", elem.x, elem.y);
-        },
-        onMove: function () {
-          const elem = this as Draggable;
-          // console.log("curr-", elem.x, elem.y);
-          // console.log("prev-", prev.x, prev.y);
-          const offsetX = elem.x - prev.x;
-          const offsetY = elem.y - prev.y;
-          console.log("offset", offsetX, offsetY);
+          // console.log("press", elem.x, elem.y);
 
-          const { x, y } = elem;
-          prev = { x, y };
+          // stage 근처에 있으면 오리진 값 저장하지 않음
+          let hit = false;
+          [main, support].forEach((pos) => {
+            if (elem.hitTest(pos, "50%")) {
+              hit = true;
+            }
+          });
+
+          const { x, y } = elem.target.getBoundingClientRect();
+
+          if (!hit) {
+            // 현재 위치 저장
+            origin = { x, y };
+            // console.log("origin - ", x, y);
+          }
+
+          // // 이전값 초기화
+          // prev = { ...origin };
+
+          gsap.to(elem.target, {
+            duration: 0.3,
+            scale: 1.1,
+            translateZ: 600,
+            // rotateY: 45,
+            // rotateX: 45,
+          });
         },
+        // onMove: function () {
+        //   const elem = this as Draggable;
+
+        //   // 현재 위치와 이전 위치의 offset
+        //   const offsetX = elem.x - prev.x;
+        //   const offsetY = elem.y - prev.y;
+        //   // console.log(prev.x, prev.y);
+        //   // console.log(elem.x, elem.y);
+        //   // console.log("offset", "x:", offsetX, "y:", offsetY);
+
+        //   // 현재 위치 저장
+        //   const { x, y } = elem;
+        //   prev = { x, y };
+
+        //   // // tilt
+        //   // tilt(offsetX, offsetY, elem.target);
+        // },
+
         onRelease: function (e: PointerEvent) {
+          // console.log(origin);
+
           const elem = this as Draggable;
 
           let hit = false;
           [main, support].forEach((pos) => {
             if (elem.hitTest(pos, "50%")) {
               const stage = pos.getBoundingClientRect();
-              console.log("stage - ", stage.x, stage.y);
-              console.log("moved - ", elem.x, elem.y);
+              console.log("hit elem: ", elem.x, elem.y);
+              console.log("hit stage: ", stage.x, stage.y);
 
               // 위치 이동(스테이지와 원래 위치의 간극만큼 이동)
               gsap.to(elem.target, {
@@ -69,6 +120,8 @@
               });
 
               hit = true;
+              console.log("hit");
+              // console.log(stage.x - origin.x + 8, stage.y - origin.y + 8);
             }
           });
 
@@ -98,7 +151,13 @@
   <div bind:this={deck} class="deck">
     {#each deckItems as deckItem, index}
       <div bind:this={deckItem} class="deck-item">
-        <div bind:this={cards[index]} class="card">card {index + 1}</div>
+        <div bind:this={cards[index]} class="card">
+          <div class="card-side card-front" />
+          {#each [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as edge}
+            <div class="card-side card-edge" />
+          {/each}
+          <div class="card-side card-back" />
+        </div>
       </div>
     {/each}
   </div>
@@ -117,8 +176,8 @@
   }
 
   .stage > div {
-    width: 150px;
-    height: 250px;
+    width: 378px;
+    height: 538px;
     border: 1px solid black;
   }
 
@@ -130,8 +189,8 @@
   }
 
   .deck-item {
-    width: 150px;
-    height: 250px;
+    width: 378px;
+    height: 538px;
     border: 1px solid black;
     display: flex;
     justify-content: center;
@@ -139,12 +198,37 @@
   }
 
   .card {
-    width: 134px;
-    height: 234px;
-    border: 1px solid red;
+    width: 362px;
+    height: 522px;
+    /* border: 1px solid red; */
     display: flex;
     align-items: center;
     justify-content: center;
     transform-style: preserve-3d;
+    position: relative;
+    transform-origin: center center;
+  }
+
+  .card-side {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+  }
+
+  .card-front {
+    background-image: url(/front.png);
+    z-index: 1;
+    transform: translateZ(10px);
+  }
+  .card-edge {
+    background-color: goldenrod;
+  }
+
+  .card-back {
+    background-image: url(/back.png);
+    transform: rotateY(180deg);
   }
 </style>

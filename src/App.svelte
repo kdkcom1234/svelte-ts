@@ -27,7 +27,7 @@
       <li><a href="#/counter">Counter</a></li>
       <li><a href="#/profile">Profile</a></li>
       <li><a href="#/todo">Todo</a></li>
-      <li><a href="#/draggable">Draggable</a></li>
+      <li><a href="#/card">Card</a></li>
     </ul>
   </nav>
 </header>
