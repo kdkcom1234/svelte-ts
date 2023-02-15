@@ -17,34 +17,31 @@
   onMount(() => {
     gsap.registerPlugin(Draggable);
 
-    const tiltend = debounce((target: HTMLElement | SVGElement) => {
-      // console.log("--end");
-      gsap.to(target, {
-        duration: 1.5,
-        rotateX: 0,
-        rotateY: 0,
+    // const moveend = debounce((elem: Draggable) => {
+    //   console.log("--end");
+    //   let hit = false;
+    //   [main, support].forEach((pos) => {
+    //     if (elem.hitTest(pos, "50%")) {
+    //       hit = true;
+    //     }
+    //   });
+    // }, 300);
+
+    const tilt = throttle((x: number, y: number, elem: Draggable) => {
+      // console.log("rotateY:", x * 2, "rotateX", -(y * 2));
+      // console.log("--tilt");
+
+      // 위로: y이동은 - , x회전은+
+      // 아래로: y이동은 +, x회전은 -
+      // 오른쪽: x이동은 +, y회전은+
+      // 왼쪽: x이동은-, y회전은-
+      gsap.to(elem.target, {
+        duration: 0.5,
+        // delay: 0.5,
+        rotateY: `${x}deg`,
+        rotateX: `${-y}deg`,
       });
-    }, 200);
-
-    const tilt = throttle(
-      (x: number, y: number, target: HTMLElement | SVGElement) => {
-        // console.log("rotateY:", x * 2, "rotateX", -(y * 2));
-        // console.log("--tilt");
-
-        // 위로: y이동은 - , x회전은+
-        // 아래로: y이동은 +, x회전은 -
-        // 오른쪽: x이동은 +, y회전은+
-        // 왼쪽: x이동은-, y회전은-
-
-        gsap.to(target, {
-          duration: 0.5,
-          // delay: 0.5,
-          rotateY: `${x * 1}deg`,
-          rotateX: `${-(y * 1)}deg`,
-        });
-      },
-      10
-    );
+    }, 10);
 
     let origin = { x: 0, y: 0 };
     let prev = { x: 0, y: 0 };
@@ -98,7 +95,7 @@
           prev = { x, y };
 
           // tilt
-          tilt(offsetX, offsetY, elem.target);
+          tilt(offsetX, offsetY, elem);
         },
 
         onRelease: function (e: PointerEvent) {
