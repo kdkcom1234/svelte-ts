@@ -164,6 +164,7 @@
     margin-bottom: 40px;
     gap: 8px;
     justify-content: center;
+    transform-style: preserve-3d;
   }
 
   .stage > div {
@@ -177,6 +178,7 @@
     gap: 8px;
     justify-content: center;
     align-items: center;
+    transform-style: preserve-3d;
   }
 
   .deck-item {
