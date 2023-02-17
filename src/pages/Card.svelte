@@ -17,18 +17,7 @@
   onMount(() => {
     gsap.registerPlugin(Draggable);
 
-    // const moveend = debounce((elem: Draggable) => {
-    //   console.log("--end");
-    //   let hit = false;
-    //   [main, support].forEach((pos) => {
-    //     if (elem.hitTest(pos, "50%")) {
-    //       hit = true;
-    //     }
-    //   });
-    // }, 300);
-
     const tilt = throttle((x: number, y: number, elem: Draggable) => {
-      // console.log("rotateY:", x * 2, "rotateX", -(y * 2));
       // console.log("--tilt");
 
       // 위로: y이동은 - , x회전은+
@@ -40,6 +29,7 @@
         // delay: 0.5,
         rotateY: `${x}deg`,
         rotateX: `${-y}deg`,
+        rotateZ: `${x / 3}deg`,
       });
     }, 10);
 
@@ -78,6 +68,7 @@
             translateZ: 600,
             // rotateY: 45,
             // rotateX: 45,
+            // rotateZ: 45,
           });
         },
         onMove: function () {
@@ -115,8 +106,7 @@
                 duration: 0.5,
                 x: stage.x - origin.x + 8,
                 y: stage.y - origin.y + 8,
-                rotateX: 0,
-                rotateY: 0,
+                rotate: 0,
                 translateZ: 0,
                 scale: 1,
               });
@@ -133,8 +123,7 @@
               duration: 0.5,
               x: 0,
               y: 0,
-              rotateX: 0,
-              rotateY: 0,
+              rotate: 0,
               translateZ: 0,
               scale: 1,
             });
